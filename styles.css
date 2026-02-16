@@ -1,0 +1,267 @@
+:root {
+  --bg-1: #0f1f2f;
+  --bg-2: #173f4d;
+  --surface: rgba(8, 24, 33, 0.7);
+  --surface-border: rgba(255, 255, 255, 0.16);
+  --text: #f2f8fa;
+  --muted: #afc4ce;
+  --accent: #00d2b4;
+  --accent-2: #ffbc42;
+  --danger: #ff4f4f;
+  --shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", "Avenir Next", "Trebuchet MS", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 0 0, rgba(0, 210, 180, 0.2) 0, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(255, 188, 66, 0.2) 0, transparent 35%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2));
+  padding: 2rem 1rem 3rem;
+}
+
+.bg-shape {
+  position: fixed;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.45;
+}
+
+.bg-shape-a {
+  width: 20rem;
+  height: 20rem;
+  background: rgba(255, 188, 66, 0.55);
+  top: -6rem;
+  right: -5rem;
+}
+
+.bg-shape-b {
+  width: 18rem;
+  height: 18rem;
+  background: rgba(0, 210, 180, 0.5);
+  bottom: -6rem;
+  left: -4rem;
+}
+
+.app {
+  width: min(100%, 68rem);
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.app__header h1 {
+  margin: 0.25rem 0;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.8rem;
+  color: var(--accent-2);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.panel {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.setup {
+  padding: 1rem;
+}
+
+.setup__form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1rem;
+}
+
+.field input:focus {
+  outline: 2px solid rgba(0, 210, 180, 0.45);
+  outline-offset: 2px;
+}
+
+.timers {
+  display: grid;
+  gap: 1rem;
+}
+
+.timer-card {
+  padding: 1.1rem;
+}
+
+.timer-card__meta h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.timer-card__meta p {
+  margin: 0.15rem 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.timer-value {
+  margin: 0;
+  font-size: clamp(2.1rem, 8vw, 4rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress {
+  margin-top: 0.85rem;
+  border-radius: 999px;
+  width: 100%;
+  height: 0.52rem;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), #39f0c1);
+  transition: width 180ms linear, background-color 180ms ease;
+}
+
+.controls {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.status-item {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  gap: 0.15rem;
+}
+
+.status-item span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.status-item strong {
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.btn {
+  border: 0;
+  border-radius: 0.8rem;
+  padding: 0.78rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: linear-gradient(120deg, var(--accent), #00b598);
+  color: #042d29;
+}
+
+.btn--accent {
+  background: linear-gradient(120deg, var(--accent-2), #ffd86b);
+  color: #332200;
+}
+
+.btn--ghost {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.status-text {
+  margin: 0;
+  color: var(--muted);
+  min-height: 1.3rem;
+}
+
+.timer-card.is-overdue .timer-value,
+.timer-card.is-overdue .timer-card__meta p {
+  color: var(--danger);
+}
+
+.timer-card.is-overdue .progress__bar {
+  background: var(--danger);
+}
+
+@media (min-width: 48rem) {
+  .setup__form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .timers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 39rem) {
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+}
