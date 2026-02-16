@@ -17,8 +17,8 @@
       <div id="sessionScreen" class="session-screen">
         <header class="app__header">
           <p class="eyebrow">Scrum Daily</p>
-          <h1>Daily-Uhr</h1>
-          <p class="subtitle">Gesamtzeit und Redezeit pro Person live im Blick.</p>
+          <h1 id="mainTitle">Daily-Uhr</h1>
+          <p id="mainSubtitle" class="subtitle">Gesamtzeit und Redezeit pro Person live im Blick.</p>
         </header>
 
         <section id="setupPanel" class="panel setup" aria-label="Einstellungen">
@@ -37,15 +37,15 @@
             </label>
             <label class="field">
               <span>Anzahl Personen</span>
-              <input
-                id="peopleCount"
-                name="peopleCount"
-                type="number"
-                min="1"
-                step="1"
-                value="5"
-                required
-              />
+            <input
+              id="peopleCount"
+              name="peopleCount"
+              type="number"
+              min="1"
+              step="1"
+              value="13"
+              required
+            />
             </label>
             <button id="startButton" type="submit" class="btn btn--primary">
               Daily starten
@@ -70,7 +70,7 @@
               <h2>Aktuelle Person</h2>
               <p id="speakerHint">Verbleibende Redezeit</p>
             </div>
-            <p id="speakerTime" class="timer-value">03:00</p>
+            <p id="speakerTime" class="timer-value">01:09</p>
             <div class="progress" aria-hidden="true">
               <div id="speakerProgress" class="progress__bar"></div>
             </div>
@@ -81,16 +81,27 @@
           <div class="status-grid">
             <p class="status-item">
               <span>Person</span>
-              <strong id="currentSpeaker">1 / 5</strong>
+              <strong id="currentSpeaker">1 / 13</strong>
             </p>
             <p class="status-item">
               <span>Verbleibend</span>
-              <strong id="remainingPeople">5</strong>
+              <strong id="remainingPeople">13</strong>
             </p>
             <p class="status-item">
               <span>Zeit pro Person</span>
-              <strong id="allocatedTime">03:00</strong>
+              <strong id="allocatedTime">01:09</strong>
             </p>
+          </div>
+          <div class="people-adjust">
+            <span>Personen live anpassen</span>
+            <div class="people-adjust__buttons">
+              <button id="decreasePeopleButton" type="button" class="btn btn--ghost" disabled>
+                -
+              </button>
+              <button id="increasePeopleButton" type="button" class="btn btn--ghost" disabled>
+                +
+              </button>
+            </div>
           </div>
 
           <div class="controls__buttons">
