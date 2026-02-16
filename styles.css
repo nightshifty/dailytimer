@@ -345,10 +345,6 @@ body {
 }
 
 @media (max-width: 39rem) {
-  .status-grid {
-    grid-template-columns: 1fr;
-  }
-
   .people-adjust {
     flex-direction: column;
     align-items: flex-start;
