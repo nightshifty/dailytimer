@@ -1,6 +1,8 @@
 const DEFAULT_TOTAL_MINUTES = 15;
 
 const ui = {
+  sessionScreen: document.querySelector("#sessionScreen"),
+  farewellScreen: document.querySelector("#farewellScreen"),
   setupPanel: document.querySelector("#setupPanel"),
   setupForm: document.querySelector("#setupForm"),
   totalMinutes: document.querySelector("#totalMinutes"),
@@ -8,6 +10,8 @@ const ui = {
   startButton: document.querySelector("#startButton"),
   doneButton: document.querySelector("#doneButton"),
   resetButton: document.querySelector("#resetButton"),
+  restartButton: document.querySelector("#restartButton"),
+  farewellMeta: document.querySelector("#farewellMeta"),
   totalCard: document.querySelector("#totalCard"),
   speakerCard: document.querySelector("#speakerCard"),
   totalTime: document.querySelector("#totalTime"),
@@ -51,6 +55,11 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function formatMinutesValue(ms) {
+  const rounded = Math.round((ms / 60_000) * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
 function computeRemainingTotal(now) {
   const elapsed = now - state.sessionStartAt;
   return state.totalDurationMs - elapsed;
@@ -73,6 +82,11 @@ function updateStatusLine(text) {
 
 function updateSetupVisibility() {
   ui.setupPanel.hidden = state.running;
+}
+
+function updateScreenVisibility() {
+  ui.sessionScreen.hidden = state.completed;
+  ui.farewellScreen.hidden = !state.completed;
 }
 
 function refreshView(now = performance.now()) {
@@ -127,6 +141,7 @@ function startSession(totalMinutes, peopleCount) {
   state.completed = false;
 
   nextSpeakerTurn(now);
+  updateScreenVisibility();
   updateInputsDisabled(true);
   updateSetupVisibility();
   ui.doneButton.disabled = false;
@@ -150,6 +165,8 @@ function finishSpeaker() {
   if (state.peopleRemaining === 0) {
     state.running = false;
     state.completed = true;
+    ui.farewellMeta.textContent = `Daily abgeschlossen in ${formatMinutesValue(now - state.sessionStartAt)} Minuten`;
+    updateScreenVisibility();
     updateSetupVisibility();
     ui.doneButton.disabled = true;
     updateStatusLine("Alle Personen sind fertig.");
@@ -181,6 +198,8 @@ function resetSession() {
   state.speakerTurnStartedAt = 0;
   state.sessionStartAt = 0;
 
+  ui.farewellMeta.textContent = "Daily abgeschlossen";
+  updateScreenVisibility();
   updateInputsDisabled(false);
   updateSetupVisibility();
   ui.doneButton.disabled = true;
@@ -221,5 +240,6 @@ ui.setupForm.addEventListener("submit", (event) => {
 
 ui.doneButton.addEventListener("click", finishSpeaker);
 ui.resetButton.addEventListener("click", resetSession);
+ui.restartButton.addEventListener("click", resetSession);
 
 resetSession();

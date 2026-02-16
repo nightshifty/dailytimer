@@ -14,93 +14,106 @@
     <div class="bg-shape bg-shape-a" aria-hidden="true"></div>
     <div class="bg-shape bg-shape-b" aria-hidden="true"></div>
     <main class="app">
-      <header class="app__header">
-        <p class="eyebrow">Scrum Daily</p>
-        <h1>Daily-Uhr</h1>
-        <p class="subtitle">Gesamtzeit und Redezeit pro Person live im Blick.</p>
-      </header>
+      <div id="sessionScreen" class="session-screen">
+        <header class="app__header">
+          <p class="eyebrow">Scrum Daily</p>
+          <h1>Daily-Uhr</h1>
+          <p class="subtitle">Gesamtzeit und Redezeit pro Person live im Blick.</p>
+        </header>
 
-      <section id="setupPanel" class="panel setup" aria-label="Einstellungen">
-        <form id="setupForm" class="setup__form">
-          <label class="field">
-            <span>Gesamtzeit (Minuten)</span>
-            <input
-              id="totalMinutes"
-              name="totalMinutes"
-              type="number"
-              min="1"
-              step="1"
-              value="15"
-              required
-            />
-          </label>
-          <label class="field">
-            <span>Anzahl Personen</span>
-            <input
-              id="peopleCount"
-              name="peopleCount"
-              type="number"
-              min="1"
-              step="1"
-              value="5"
-              required
-            />
-          </label>
-          <button id="startButton" type="submit" class="btn btn--primary">
-            Daily starten
+        <section id="setupPanel" class="panel setup" aria-label="Einstellungen">
+          <form id="setupForm" class="setup__form">
+            <label class="field">
+              <span>Gesamtzeit (Minuten)</span>
+              <input
+                id="totalMinutes"
+                name="totalMinutes"
+                type="number"
+                min="1"
+                step="1"
+                value="15"
+                required
+              />
+            </label>
+            <label class="field">
+              <span>Anzahl Personen</span>
+              <input
+                id="peopleCount"
+                name="peopleCount"
+                type="number"
+                min="1"
+                step="1"
+                value="5"
+                required
+              />
+            </label>
+            <button id="startButton" type="submit" class="btn btn--primary">
+              Daily starten
+            </button>
+          </form>
+        </section>
+
+        <section class="timers" aria-live="polite">
+          <article id="totalCard" class="panel timer-card">
+            <div class="timer-card__meta">
+              <h2>Gesamtzeit</h2>
+              <p id="totalHint">Verbleibende Zeit</p>
+            </div>
+            <p id="totalTime" class="timer-value">15:00</p>
+            <div class="progress" aria-hidden="true">
+              <div id="totalProgress" class="progress__bar"></div>
+            </div>
+          </article>
+
+          <article id="speakerCard" class="panel timer-card">
+            <div class="timer-card__meta">
+              <h2>Aktuelle Person</h2>
+              <p id="speakerHint">Verbleibende Redezeit</p>
+            </div>
+            <p id="speakerTime" class="timer-value">03:00</p>
+            <div class="progress" aria-hidden="true">
+              <div id="speakerProgress" class="progress__bar"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel controls">
+          <div class="status-grid">
+            <p class="status-item">
+              <span>Person</span>
+              <strong id="currentSpeaker">1 / 5</strong>
+            </p>
+            <p class="status-item">
+              <span>Verbleibend</span>
+              <strong id="remainingPeople">5</strong>
+            </p>
+            <p class="status-item">
+              <span>Zeit pro Person</span>
+              <strong id="allocatedTime">03:00</strong>
+            </p>
+          </div>
+
+          <div class="controls__buttons">
+            <button id="doneButton" type="button" class="btn btn--accent" disabled>
+              Person fertig
+            </button>
+            <button id="resetButton" type="button" class="btn btn--ghost">
+              Zurücksetzen
+            </button>
+          </div>
+          <p id="statusText" class="status-text">Bitte Einstellungen prüfen und starten.</p>
+        </section>
+      </div>
+
+      <section id="farewellScreen" class="panel farewell" hidden>
+        <div class="farewell__content">
+          <p id="farewellMeta" class="eyebrow">Daily abgeschlossen</p>
+          <h2>Danke für eure Zeit</h2>
+          <p class="farewell__subtitle">Happy Hacking</p>
+          <button id="restartButton" type="button" class="btn btn--primary">
+            Neue Runde starten
           </button>
-        </form>
-      </section>
-
-      <section class="timers" aria-live="polite">
-        <article id="totalCard" class="panel timer-card">
-          <div class="timer-card__meta">
-            <h2>Gesamtzeit</h2>
-            <p id="totalHint">Verbleibende Zeit</p>
-          </div>
-          <p id="totalTime" class="timer-value">15:00</p>
-          <div class="progress" aria-hidden="true">
-            <div id="totalProgress" class="progress__bar"></div>
-          </div>
-        </article>
-
-        <article id="speakerCard" class="panel timer-card">
-          <div class="timer-card__meta">
-            <h2>Aktuelle Person</h2>
-            <p id="speakerHint">Verbleibende Redezeit</p>
-          </div>
-          <p id="speakerTime" class="timer-value">03:00</p>
-          <div class="progress" aria-hidden="true">
-            <div id="speakerProgress" class="progress__bar"></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="panel controls">
-        <div class="status-grid">
-          <p class="status-item">
-            <span>Person</span>
-            <strong id="currentSpeaker">1 / 5</strong>
-          </p>
-          <p class="status-item">
-            <span>Verbleibend</span>
-            <strong id="remainingPeople">5</strong>
-          </p>
-          <p class="status-item">
-            <span>Zeit pro Person</span>
-            <strong id="allocatedTime">03:00</strong>
-          </p>
         </div>
-
-        <div class="controls__buttons">
-          <button id="doneButton" type="button" class="btn btn--accent" disabled>
-            Person fertig
-          </button>
-          <button id="resetButton" type="button" class="btn btn--ghost">
-            Zurücksetzen
-          </button>
-        </div>
-        <p id="statusText" class="status-text">Bitte Einstellungen prüfen und starten.</p>
       </section>
     </main>
 
