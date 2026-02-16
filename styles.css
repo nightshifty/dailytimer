@@ -249,6 +249,25 @@ body {
   background: var(--danger);
 }
 
+.timer-card.is-warning .progress__bar {
+  background: #ffd86b;
+}
+
+.timer-card.is-overdue.is-overdue-blink .progress__bar {
+  animation: danger-blink 0.7s step-start infinite;
+}
+
+@keyframes danger-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
 @media (min-width: 48rem) {
   .setup__form {
     grid-template-columns: repeat(3, minmax(0, 1fr));
