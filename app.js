@@ -92,6 +92,8 @@ function refreshView(now = performance.now()) {
 
   ui.totalCard.classList.toggle("is-overdue", totalRemaining < 0);
   ui.speakerCard.classList.toggle("is-overdue", speakerRemaining < 0);
+  ui.speakerCard.classList.toggle("is-warning", speakerRemaining <= 10_000 && speakerRemaining >= 0);
+  ui.speakerCard.classList.toggle("is-overdue-blink", speakerRemaining < -10_000 && totalRemaining >= 0);
 
   ui.currentSpeaker.textContent = `${state.currentSpeakerNumber} / ${state.peopleTotal}`;
   ui.remainingPeople.textContent = String(state.peopleRemaining);
