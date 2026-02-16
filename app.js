@@ -7,6 +7,8 @@ const ui = {
   mainTitle: document.querySelector("#mainTitle"),
   mainSubtitle: document.querySelector("#mainSubtitle"),
   setupPanel: document.querySelector("#setupPanel"),
+  sessionTimers: document.querySelector("#sessionTimers"),
+  sessionControls: document.querySelector("#sessionControls"),
   setupForm: document.querySelector("#setupForm"),
   totalMinutes: document.querySelector("#totalMinutes"),
   peopleCount: document.querySelector("#peopleCount"),
@@ -88,6 +90,12 @@ function updateSetupVisibility() {
   ui.setupPanel.hidden = state.running;
 }
 
+function updateRunningPanelsVisibility() {
+  const showRunningPanels = state.running;
+  ui.sessionTimers.hidden = !showRunningPanels;
+  ui.sessionControls.hidden = !showRunningPanels;
+}
+
 function updatePeopleAdjustButtons() {
   ui.increasePeopleButton.disabled = !state.running;
   ui.decreasePeopleButton.disabled = !state.running || state.peopleRemaining <= 1;
@@ -158,6 +166,7 @@ function startSession(totalMinutes, peopleCount) {
 
   nextSpeakerTurn(now);
   updateScreenVisibility();
+  updateRunningPanelsVisibility();
   updateHeaderFocusVisibility();
   updateInputsDisabled(true);
   updateSetupVisibility();
@@ -184,6 +193,7 @@ function finishSpeaker() {
     state.completed = true;
     ui.farewellMeta.textContent = `Daily abgeschlossen in ${formatMinutesValue(now - state.sessionStartAt)} Minuten`;
     updateScreenVisibility();
+    updateRunningPanelsVisibility();
     updateHeaderFocusVisibility();
     updateSetupVisibility();
     ui.doneButton.disabled = true;
@@ -242,6 +252,7 @@ function resetSession() {
 
   ui.farewellMeta.textContent = "Daily abgeschlossen";
   updateScreenVisibility();
+  updateRunningPanelsVisibility();
   updateHeaderFocusVisibility();
   updateInputsDisabled(false);
   updateSetupVisibility();
