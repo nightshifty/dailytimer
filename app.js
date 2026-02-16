@@ -1,8 +1,11 @@
 const DEFAULT_TOTAL_MINUTES = 15;
+const DEFAULT_PEOPLE_COUNT = 13;
 
 const ui = {
   sessionScreen: document.querySelector("#sessionScreen"),
   farewellScreen: document.querySelector("#farewellScreen"),
+  mainTitle: document.querySelector("#mainTitle"),
+  mainSubtitle: document.querySelector("#mainSubtitle"),
   setupPanel: document.querySelector("#setupPanel"),
   setupForm: document.querySelector("#setupForm"),
   totalMinutes: document.querySelector("#totalMinutes"),
@@ -11,6 +14,8 @@ const ui = {
   doneButton: document.querySelector("#doneButton"),
   resetButton: document.querySelector("#resetButton"),
   restartButton: document.querySelector("#restartButton"),
+  decreasePeopleButton: document.querySelector("#decreasePeopleButton"),
+  increasePeopleButton: document.querySelector("#increasePeopleButton"),
   farewellMeta: document.querySelector("#farewellMeta"),
   totalCard: document.querySelector("#totalCard"),
   speakerCard: document.querySelector("#speakerCard"),
@@ -30,8 +35,8 @@ const state = {
   animationFrameId: null,
   totalDurationMs: DEFAULT_TOTAL_MINUTES * 60_000,
   sessionStartAt: 0,
-  peopleTotal: 1,
-  peopleRemaining: 1,
+  peopleTotal: DEFAULT_PEOPLE_COUNT,
+  peopleRemaining: DEFAULT_PEOPLE_COUNT,
   currentSpeakerNumber: 1,
   speakerTurnStartedAt: 0,
   speakerAllowanceMs: 0,
@@ -56,8 +61,7 @@ function clamp(value, min, max) {
 }
 
 function formatMinutesValue(ms) {
-  const rounded = Math.round((ms / 60_000) * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return String(Math.round(ms / 60_000));
 }
 
 function computeRemainingTotal(now) {
@@ -82,6 +86,17 @@ function updateStatusLine(text) {
 
 function updateSetupVisibility() {
   ui.setupPanel.hidden = state.running;
+}
+
+function updatePeopleAdjustButtons() {
+  ui.increasePeopleButton.disabled = !state.running;
+  ui.decreasePeopleButton.disabled = !state.running || state.peopleRemaining <= 1;
+}
+
+function updateHeaderFocusVisibility() {
+  const hideHeaderText = state.running;
+  ui.mainTitle.hidden = hideHeaderText;
+  ui.mainSubtitle.hidden = hideHeaderText;
 }
 
 function updateScreenVisibility() {
@@ -112,6 +127,7 @@ function refreshView(now = performance.now()) {
   ui.currentSpeaker.textContent = `${state.currentSpeakerNumber} / ${state.peopleTotal}`;
   ui.remainingPeople.textContent = String(state.peopleRemaining);
   ui.allocatedTime.textContent = formatDuration(state.speakerAllowanceMs);
+  updatePeopleAdjustButtons();
 }
 
 function nextSpeakerTurn(now) {
@@ -142,6 +158,7 @@ function startSession(totalMinutes, peopleCount) {
 
   nextSpeakerTurn(now);
   updateScreenVisibility();
+  updateHeaderFocusVisibility();
   updateInputsDisabled(true);
   updateSetupVisibility();
   ui.doneButton.disabled = false;
@@ -167,6 +184,7 @@ function finishSpeaker() {
     state.completed = true;
     ui.farewellMeta.textContent = `Daily abgeschlossen in ${formatMinutesValue(now - state.sessionStartAt)} Minuten`;
     updateScreenVisibility();
+    updateHeaderFocusVisibility();
     updateSetupVisibility();
     ui.doneButton.disabled = true;
     updateStatusLine("Alle Personen sind fertig.");
@@ -179,6 +197,30 @@ function finishSpeaker() {
   refreshView(now);
 }
 
+function adjustPeopleCount(delta) {
+  if (!state.running || !Number.isInteger(delta) || delta === 0) {
+    return;
+  }
+
+  const now = performance.now();
+  const nextRemaining = state.peopleRemaining + delta;
+  if (nextRemaining < 1) {
+    return;
+  }
+
+  const elapsedCurrentSpeaker = now - state.speakerTurnStartedAt;
+  const remainingTotal = computeRemainingTotal(now);
+  state.peopleRemaining = nextRemaining;
+  state.peopleTotal += delta;
+  state.currentSpeakerNumber = state.peopleTotal - state.peopleRemaining + 1;
+  state.speakerAllowanceMs = remainingTotal / state.peopleRemaining;
+  state.speakerTurnStartedAt = now - elapsedCurrentSpeaker;
+  ui.peopleCount.value = String(state.peopleTotal);
+
+  updateStatusLine(`Personen angepasst: ${state.peopleTotal} insgesamt.`);
+  refreshView(now);
+}
+
 function resetSession() {
   state.running = false;
   state.completed = false;
@@ -188,7 +230,7 @@ function resetSession() {
   }
 
   const configuredMinutes = Number.parseInt(ui.totalMinutes.value, 10) || DEFAULT_TOTAL_MINUTES;
-  const configuredPeople = Number.parseInt(ui.peopleCount.value, 10) || 1;
+  const configuredPeople = Number.parseInt(ui.peopleCount.value, 10) || DEFAULT_PEOPLE_COUNT;
 
   state.totalDurationMs = configuredMinutes * 60_000;
   state.peopleTotal = configuredPeople;
@@ -200,6 +242,7 @@ function resetSession() {
 
   ui.farewellMeta.textContent = "Daily abgeschlossen";
   updateScreenVisibility();
+  updateHeaderFocusVisibility();
   updateInputsDisabled(false);
   updateSetupVisibility();
   ui.doneButton.disabled = true;
@@ -241,5 +284,7 @@ ui.setupForm.addEventListener("submit", (event) => {
 ui.doneButton.addEventListener("click", finishSpeaker);
 ui.resetButton.addEventListener("click", resetSession);
 ui.restartButton.addEventListener("click", resetSession);
+ui.increasePeopleButton.addEventListener("click", () => adjustPeopleCount(1));
+ui.decreasePeopleButton.addEventListener("click", () => adjustPeopleCount(-1));
 
 resetSession();
