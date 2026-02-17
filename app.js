@@ -190,6 +190,7 @@ function updateInputsDisabled(disabled) {
   ui.totalMinutes.disabled = disabled;
   ui.startButton.disabled = disabled;
   ui.settingsButton.disabled = disabled;
+  ui.settingsButton.hidden = disabled;
 }
 
 function updateStatusLine(text) {
