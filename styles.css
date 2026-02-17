@@ -226,6 +226,12 @@ body {
   transition: width 180ms linear, background-color 180ms ease;
 }
 
+.session-controls-wrapper {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 5rem;
+}
+
 .controls {
   padding: 1rem;
   display: grid;
@@ -258,10 +264,25 @@ body {
 }
 
 .controls__buttons {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 1.5rem;
+  z-index: 25;
   display: flex;
-  flex-wrap: wrap;
   gap: 0.7rem;
   align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+  box-shadow: none;
+  transition: transform 0.2s ease;
+}
+
+.controls__buttons:hover {
+  transform: translateX(-50%) translateY(-2px);
 }
 
 .mobile-action-hint {
@@ -663,24 +684,34 @@ body {
     height: 18px;
   }
 
-  .controls {
-    padding-bottom: 5.05rem;
+  .session-controls-wrapper {
+    padding-bottom: 0;
   }
 
-  .controls__buttons {
-    position: fixed;
-    left: 1rem;
-    right: 1rem;
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
-    z-index: 25;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0.9rem;
-    padding: 0.45rem 0.5rem;
-    background: rgba(8, 24, 33, 0.88);
-    backdrop-filter: blur(12px);
+  #sessionControls:not([hidden]) {
+    padding-bottom: 5.5rem;
+  }
+
+  #sessionControls:not([hidden]) .controls__buttons {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    padding: 0.65rem 1rem max(0.65rem, env(safe-area-inset-bottom));
+    background: rgba(8, 24, 33, 0.95);
+    backdrop-filter: blur(16px);
     flex-direction: column;
     align-items: stretch;
     gap: 0.3rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  #sessionControls:not([hidden]) .controls__buttons:hover {
+    transform: none;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   }
 
   .mobile-action-hint {

@@ -110,37 +110,39 @@
           </article>
         </section>
 
-        <section id="sessionControls" class="panel controls">
-          <div id="participantsSection" class="participants-section">
-            <div class="participants-meta" aria-live="polite">
-              <p id="currentSpeakerBadge" class="meta-pill">Aktuell: -</p>
-              <p class="meta-pill"><span id="remainingCount">0</span> offen</p>
-              <p class="meta-pill"><span id="completedCount">0</span> fertig</p>
-            </div>
-
-            <div class="participants-group participants-group--queue">
-              <p class="participants-label">Als Nächstes wählen</p>
-              <p class="participants-hint">Tippe auf die nächste Person, sobald die aktuelle fertig ist.</p>
-              <div id="remainingChips" class="chips-container chips-container--queue"></div>
-              <p id="nextEmptyHint" class="chips-empty-hint" hidden>Niemand mehr offen. Daily kann abgeschlossen werden.</p>
-              <p id="statusText" class="status-text">Bitte Einstellungen prüfen und starten.</p>
-            </div>
-
-            <div id="completedGroup" class="participants-group participants-group--done">
-              <p class="participants-label">Bereits fertig</p>
-              <div id="completedChips" class="chips-container"></div>
-            </div>
-
-            <div id="attendanceGroup" class="participants-group participants-group--attendance">
-              <div class="participants-group__header">
-                <p class="participants-label">Heute im Daily (an/abwesend)</p>
-                <button id="attendanceToggle" type="button" class="inline-toggle" aria-expanded="true" aria-controls="attendanceBody">
-                  Einklappen
-                </button>
+        <section id="sessionControls" class="session-controls-wrapper">
+          <div class="panel controls">
+            <div id="participantsSection" class="participants-section">
+              <div class="participants-meta" aria-live="polite">
+                <p id="currentSpeakerBadge" class="meta-pill">Aktuell: -</p>
+                <p class="meta-pill"><span id="remainingCount">0</span> offen</p>
+                <p class="meta-pill"><span id="completedCount">0</span> fertig</p>
               </div>
-              <div id="attendanceBody" class="participants-group__body">
-                <p class="participants-hint">Hier kannst du Personen bei Bedarf entfernen oder wieder hinzufügen.</p>
-                <div id="dailyCrewChips" class="chips-container"></div>
+
+              <div class="participants-group participants-group--queue">
+                <p class="participants-label">Als Nächstes wählen</p>
+                <p class="participants-hint">Tippe auf die nächste Person, sobald die aktuelle fertig ist.</p>
+                <div id="remainingChips" class="chips-container chips-container--queue"></div>
+                <p id="nextEmptyHint" class="chips-empty-hint" hidden>Niemand mehr offen. Daily kann abgeschlossen werden.</p>
+                <p id="statusText" class="status-text">Bitte Einstellungen prüfen und starten.</p>
+              </div>
+
+              <div id="completedGroup" class="participants-group participants-group--done">
+                <p class="participants-label">Bereits fertig</p>
+                <div id="completedChips" class="chips-container"></div>
+              </div>
+
+              <div id="attendanceGroup" class="participants-group participants-group--attendance">
+                <div class="participants-group__header">
+                  <p class="participants-label">Heute im Daily (an/abwesend)</p>
+                  <button id="attendanceToggle" type="button" class="inline-toggle" aria-expanded="true" aria-controls="attendanceBody">
+                    Einklappen
+                  </button>
+                </div>
+                <div id="attendanceBody" class="participants-group__body">
+                  <p class="participants-hint">Hier kannst du Personen bei Bedarf entfernen oder wieder hinzufügen.</p>
+                  <div id="dailyCrewChips" class="chips-container"></div>
+                </div>
               </div>
             </div>
           </div>
