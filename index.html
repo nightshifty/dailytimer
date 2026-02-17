@@ -13,6 +13,12 @@
   <body>
     <div class="bg-shape bg-shape-a" aria-hidden="true"></div>
     <div class="bg-shape bg-shape-b" aria-hidden="true"></div>
+    <button id="settingsButton" type="button" class="settings-btn" aria-label="Einstellungen öffnen">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
     <main class="app">
       <div id="sessionScreen" class="session-screen">
         <header class="app__header">
@@ -35,23 +41,50 @@
                 required
               />
             </label>
-            <label class="field">
-              <span>Anzahl Personen</span>
-            <input
-              id="peopleCount"
-              name="peopleCount"
-              type="number"
-              min="1"
-              step="1"
-              value="13"
-              required
-            />
-            </label>
+            <div class="field field--crew">
+              <span>Teilnehmer</span>
+              <div id="crewChips" class="chips-container chips-container--setup"></div>
+              <p id="crewEmptyHint" class="crew-empty-hint" hidden>Keine Besatzung konfiguriert. Klicke auf das Zahnrad.</p>
+            </div>
             <button id="startButton" type="submit" class="btn btn--primary">
               Daily starten
             </button>
           </form>
         </section>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal-overlay" hidden>
+          <div class="modal">
+            <div class="modal__header">
+              <h2>Feste Besatzung</h2>
+              <button id="settingsCloseButton" type="button" class="modal__close" aria-label="Schließen">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div class="modal__body">
+              <label class="field">
+                <span>Teammitglieder (einer pro Zeile)</span>
+                <textarea
+                  id="crewTextarea"
+                  name="crewNames"
+                  rows="8"
+                  placeholder="Max Mustermann&#10;Anna Schmidt&#10;Peter Meyer"
+                ></textarea>
+              </label>
+            </div>
+            <div class="modal__footer">
+              <button id="settingsShareButton" type="button" class="btn btn--ghost">
+                Teilen
+              </button>
+              <button id="settingsSaveButton" type="button" class="btn btn--primary">
+                Speichern
+              </button>
+            </div>
+          </div>
+        </div>
 
         <section id="sessionTimers" class="timers" aria-live="polite">
           <article id="totalCard" class="panel timer-card">
@@ -67,7 +100,7 @@
 
           <article id="speakerCard" class="panel timer-card">
             <div class="timer-card__meta">
-              <h2>Aktuelle Person</h2>
+              <h2 id="speakerName">Aktuelle Person</h2>
               <p id="speakerHint">Verbleibende Redezeit</p>
             </div>
             <p id="speakerTime" class="timer-value">01:09</p>
@@ -78,41 +111,46 @@
         </section>
 
         <section id="sessionControls" class="panel controls">
-          <div class="status-grid">
-            <p class="status-item">
-              <span>Person</span>
-              <strong id="currentSpeaker">1 / 13</strong>
-            </p>
-            <p class="status-item">
-              <span>Verbleibend</span>
-              <strong id="remainingPeople">13</strong>
-            </p>
-            <p class="status-item">
-              <span>Zeit pro Person</span>
-              <strong id="allocatedTime">01:09</strong>
-            </p>
-          </div>
-          <div class="people-adjust">
-            <span>Personen live anpassen</span>
-            <div class="people-adjust__buttons">
-              <button id="decreasePeopleButton" type="button" class="btn btn--ghost" disabled>
-                -
-              </button>
-              <button id="increasePeopleButton" type="button" class="btn btn--ghost" disabled>
-                +
-              </button>
+          <div id="participantsSection" class="participants-section">
+            <div class="participants-meta" aria-live="polite">
+              <p id="currentSpeakerBadge" class="meta-pill">Aktuell: -</p>
+              <p class="meta-pill"><span id="remainingCount">0</span> offen</p>
+              <p class="meta-pill"><span id="completedCount">0</span> fertig</p>
+            </div>
+
+            <div class="participants-group participants-group--queue">
+              <p class="participants-label">Als Nächstes wählen</p>
+              <p class="participants-hint">Tippe auf die nächste Person, sobald die aktuelle fertig ist.</p>
+              <div id="remainingChips" class="chips-container chips-container--queue"></div>
+              <p id="nextEmptyHint" class="chips-empty-hint" hidden>Niemand mehr offen. Daily kann abgeschlossen werden.</p>
+              <p id="statusText" class="status-text">Bitte Einstellungen prüfen und starten.</p>
+            </div>
+
+            <div id="completedGroup" class="participants-group participants-group--done">
+              <p class="participants-label">Bereits fertig</p>
+              <div id="completedChips" class="chips-container"></div>
+            </div>
+
+            <div id="attendanceGroup" class="participants-group participants-group--attendance">
+              <div class="participants-group__header">
+                <p class="participants-label">Heute im Daily (an/abwesend)</p>
+                <button id="attendanceToggle" type="button" class="inline-toggle" aria-expanded="true" aria-controls="attendanceBody">
+                  Einklappen
+                </button>
+              </div>
+              <div id="attendanceBody" class="participants-group__body">
+                <p class="participants-hint">Hier kannst du Personen bei Bedarf entfernen oder wieder hinzufügen.</p>
+                <div id="dailyCrewChips" class="chips-container"></div>
+              </div>
             </div>
           </div>
 
           <div class="controls__buttons">
-            <button id="doneButton" type="button" class="btn btn--accent" disabled>
-              Person fertig
-            </button>
-            <button id="resetButton" type="button" class="btn btn--ghost">
+            <p id="mobileActionHint" class="mobile-action-hint" aria-live="polite"></p>
+            <button id="resetButton" type="button" class="btn">
               Daily abbrechen
             </button>
           </div>
-          <p id="statusText" class="status-text">Bitte Einstellungen prüfen und starten.</p>
         </section>
       </div>
 

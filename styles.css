@@ -101,6 +101,43 @@ body {
   padding: 1rem;
 }
 
+/* Settings Button */
+.settings-btn {
+  position: fixed;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.6rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  z-index: 35;
+}
+
+.settings-btn svg {
+  transition: transform 0.15s ease;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+}
+
+.settings-btn:hover svg {
+  transform: rotate(30deg);
+}
+
+.settings-btn:active svg {
+  transform: rotate(60deg);
+}
+
 .setup__form {
   display: grid;
   gap: 0.9rem;
@@ -116,7 +153,8 @@ body {
   font-size: 0.9rem;
 }
 
-.field input {
+.field input,
+.field textarea {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.75rem;
@@ -124,9 +162,21 @@ body {
   color: var(--text);
   background: rgba(255, 255, 255, 0.08);
   font-size: 1rem;
+  font-family: inherit;
 }
 
-.field input:focus {
+.field textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.field textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.field input:focus,
+.field textarea:focus {
   outline: 2px solid rgba(0, 210, 180, 0.45);
   outline-offset: 2px;
 }
@@ -211,6 +261,12 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.7rem;
+  align-items: center;
+}
+
+.mobile-action-hint {
+  display: none;
+  margin: 0;
 }
 
 .people-adjust {
@@ -268,6 +324,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.24);
 }
 
+.btn--quiet {
+  opacity: 0.82;
+}
+
 .status-text {
   margin: 0;
   color: var(--muted);
@@ -289,6 +349,10 @@ body {
 
 .timer-card.is-overdue.is-overdue-blink .progress__bar {
   animation: danger-blink 0.7s step-start infinite;
+}
+
+.timer-card.is-speaker-change {
+  animation: speaker-card-pulse 420ms ease;
 }
 
 .farewell {
@@ -333,20 +397,429 @@ body {
   }
 }
 
+@keyframes speaker-card-pulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: var(--shadow);
+  }
+  35% {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 46px rgba(0, 0, 0, 0.32);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes meta-pill-pulse {
+  0% {
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--muted);
+  }
+  45% {
+    border-color: rgba(0, 210, 180, 0.55);
+    color: var(--text);
+  }
+  100% {
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--muted);
+  }
+}
+
+/* Participants Section */
+.participants-section {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.participants-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.meta-pill {
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.meta-pill.is-speaker-change {
+  animation: meta-pill-pulse 420ms ease;
+}
+
+.participants-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.participants-group__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.participants-group__body {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.inline-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.84rem;
+  padding: 0.2rem 0.1rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.26);
+  cursor: pointer;
+}
+
+.inline-toggle:hover {
+  color: var(--text);
+  border-bottom-color: rgba(255, 255, 255, 0.45);
+}
+
+.participants-group--attendance.is-collapsed {
+  gap: 0.2rem;
+}
+
+.participants-group--queue {
+  padding: 0.8rem;
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.participants-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.participants-hint {
+  margin: -0.1rem 0 0;
+  color: rgba(175, 196, 206, 0.72);
+  font-size: 0.82rem;
+}
+
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.chip:disabled {
+  cursor: default;
+}
+
+.chip--queue {
+  background: linear-gradient(135deg, rgba(0, 210, 180, 0.24), rgba(0, 210, 180, 0.12));
+  border: 1px solid rgba(0, 210, 180, 0.48);
+  color: #d9fff7;
+}
+
+.chips-container--queue .chip--queue {
+  padding: 0.6rem 1.05rem;
+  font-weight: 600;
+}
+
+.chip--queue:hover {
+  background: linear-gradient(135deg, rgba(0, 210, 180, 0.38), rgba(0, 210, 180, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 210, 180, 0.3);
+}
+
+.chip--queue:active {
+  transform: translateY(0);
+}
+
+.chip--active {
+  background: linear-gradient(135deg, var(--accent-2), #ffd86b);
+  color: #332200;
+  border: none;
+  box-shadow: 0 4px 16px rgba(255, 188, 66, 0.35);
+}
+
+.chip--completed {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+  text-decoration: line-through;
+  cursor: default;
+  opacity: 0.7;
+}
+
+.chip--daily-current {
+  box-shadow: 0 0 0 1px rgba(0, 210, 180, 0.6);
+}
+
+.chip--daily-completed {
+  text-decoration: line-through;
+  opacity: 0.45;
+}
+
+.participants-group--done .participants-label {
+  color: rgba(175, 196, 206, 0.6);
+}
+
+.chips-empty-hint {
+  margin: 0;
+  color: rgba(175, 196, 206, 0.82);
+  font-size: 0.88rem;
+}
+
+.participants-group--done:empty,
+.participants-group--done:has(.chips-container:empty) {
+  display: none;
+}
+
+/* Waiting state - no speaker selected yet */
+.speaker-waiting {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.status-text {
+  margin-top: 0.15rem;
+}
+
 @media (min-width: 48rem) {
   .setup__form {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: auto 1fr auto;
     align-items: end;
+  }
+
+  .field--names {
+    grid-column: 1 / -1;
   }
 
   .timers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .participants-section {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    grid-template-areas:
+      "meta attendance"
+      "queue attendance"
+      "done attendance";
+    align-items: start;
+  }
+
+  .participants-meta {
+    grid-area: meta;
+  }
+
+  .participants-group--queue {
+    grid-area: queue;
+  }
+
+  .participants-group--done {
+    grid-area: done;
+  }
+
+  .participants-group--attendance {
+    grid-area: attendance;
+    align-self: stretch;
+  }
 }
 
 @media (max-width: 39rem) {
-  .people-adjust {
+  .chips-container {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 48rem) {
+  .settings-btn {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2.05rem;
+    height: 2.05rem;
+  }
+
+  .settings-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .controls {
+    padding-bottom: 5.05rem;
+  }
+
+  .controls__buttons {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    z-index: 25;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.9rem;
+    padding: 0.45rem 0.5rem;
+    background: rgba(8, 24, 33, 0.88);
+    backdrop-filter: blur(12px);
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 0.3rem;
+  }
+
+  .mobile-action-hint {
+    display: block;
+    font-size: 0.74rem;
+    line-height: 1.1;
+    color: var(--muted);
+    text-align: center;
+    min-height: 0.85rem;
+  }
+
+  .controls__buttons .btn {
+    width: 100%;
+    padding-block: 0.62rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress__bar,
+  .chip,
+  .settings-btn svg {
+    transition: none !important;
+  }
+
+  .timer-card.is-speaker-change,
+  .meta-pill.is-speaker-change,
+  .timer-card.is-overdue.is-overdue-blink .progress__bar {
+    animation: none !important;
+  }
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: min(100%, 28rem);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem 0.5rem;
+}
+
+.modal__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.modal__close {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.modal__body {
+  padding: 0.5rem 1rem 1rem;
+}
+
+.modal__footer {
+  padding: 0 1rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Setup Crew Chips */
+.chips-container--setup {
+  min-height: 2.8rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+}
+
+.chip--present {
+  background: linear-gradient(135deg, rgba(255, 188, 66, 0.24), rgba(255, 188, 66, 0.12));
+  border: 1px solid rgba(255, 188, 66, 0.5);
+  color: #ffe9bf;
+}
+
+.chip--present:hover {
+  background: linear-gradient(135deg, rgba(255, 188, 66, 0.38), rgba(255, 188, 66, 0.2));
+}
+
+.chip--absent {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.chip--absent:hover {
+  opacity: 0.7;
+}
+
+.crew-empty-hint {
+  margin: 0;
+  padding: 0.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Responsive adjustments for setup form with crew chips */
+@media (min-width: 48rem) {
+  .field--crew {
+    grid-column: 1 / -1;
   }
 }
