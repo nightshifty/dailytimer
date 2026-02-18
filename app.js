@@ -45,6 +45,12 @@ const ui = {
   crewTextarea: document.querySelector("#crewTextarea"),
   crewChips: document.querySelector("#crewChips"),
   crewEmptyHint: document.querySelector("#crewEmptyHint"),
+  crewSetupLink: document.querySelector("#crewSetupLink"),
+  mainEyebrow: document.querySelector("#mainEyebrow"),
+  // Confirm modal elements
+  confirmModal: document.querySelector("#confirmModal"),
+  confirmCancel: document.querySelector("#confirmCancel"),
+  confirmOk: document.querySelector("#confirmOk"),
 };
 
 const state = {
@@ -211,6 +217,7 @@ function updateHeaderFocusVisibility() {
   const hideHeaderText = state.running;
   ui.mainTitle.hidden = hideHeaderText;
   ui.mainSubtitle.hidden = hideHeaderText;
+  ui.mainEyebrow.hidden = hideHeaderText;
 }
 
 function updateScreenVisibility() {
@@ -651,7 +658,9 @@ function finishLastSpeaker() {
   state.running = false;
   state.completed = true;
 
-  ui.farewellMeta.textContent = `Daily abgeschlossen in ${formatMinutesValue(now - state.sessionStartAt)} Minuten`;
+  const mins = formatMinutesValue(now - state.sessionStartAt);
+  const label = mins === "1" ? "Minute" : "Minuten";
+  ui.farewellMeta.textContent = `Daily abgeschlossen in ${mins} ${label}`;
   updateScreenVisibility();
   updateRunningPanelsVisibility();
   updateHeaderFocusVisibility();
@@ -801,14 +810,31 @@ function init() {
     // If this is the last speaker, finish the daily properly
     if (state.running && state.remainingParticipants.length === 0 && state.currentSpeaker) {
       finishLastSpeaker();
+    } else if (state.running) {
+      ui.confirmModal.hidden = false;
     } else {
       resetSession();
+    }
+  });
+
+  // Confirm modal event listeners
+  ui.confirmOk.addEventListener("click", () => {
+    ui.confirmModal.hidden = true;
+    resetSession();
+  });
+  ui.confirmCancel.addEventListener("click", () => {
+    ui.confirmModal.hidden = true;
+  });
+  ui.confirmModal.addEventListener("click", (event) => {
+    if (event.target === ui.confirmModal) {
+      ui.confirmModal.hidden = true;
     }
   });
   ui.restartButton.addEventListener("click", resetSession);
 
   // Settings modal event listeners
   ui.settingsButton.addEventListener("click", openSettingsModal);
+  ui.crewSetupLink.addEventListener("click", openSettingsModal);
   ui.settingsCloseButton.addEventListener("click", closeSettingsModal);
   ui.settingsShareButton.addEventListener("click", shareCrew);
   ui.settingsSaveButton.addEventListener("click", saveSettings);
@@ -824,10 +850,14 @@ function init() {
     }
   });
 
-  // Close modal on Escape key
+  // Close modals on Escape key
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !ui.settingsModal.hidden) {
-      closeSettingsModal();
+    if (event.key === "Escape") {
+      if (!ui.confirmModal.hidden) {
+        ui.confirmModal.hidden = true;
+      } else if (!ui.settingsModal.hidden) {
+        closeSettingsModal();
+      }
     }
   });
 

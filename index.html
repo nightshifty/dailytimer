@@ -22,7 +22,7 @@
     <main class="app">
       <div id="sessionScreen" class="session-screen">
         <header class="app__header">
-          <p class="eyebrow">Scrum Daily</p>
+          <p id="mainEyebrow" class="eyebrow">Scrum Daily</p>
           <h1 id="mainTitle">Daily-Uhr</h1>
           <p id="mainSubtitle" class="subtitle">Gesamtzeit und Redezeit pro Person live im Blick.</p>
         </header>
@@ -44,7 +44,7 @@
             <div class="field field--crew">
               <span>Teilnehmer</span>
               <div id="crewChips" class="chips-container chips-container--setup"></div>
-              <p id="crewEmptyHint" class="crew-empty-hint" hidden>Keine Besatzung konfiguriert. Klicke auf das Zahnrad.</p>
+              <p id="crewEmptyHint" class="crew-empty-hint" hidden>Keine Besatzung konfiguriert. <button id="crewSetupLink" type="button" class="inline-link">Crew einrichten</button></p>
             </div>
             <button id="startButton" type="submit" class="btn btn--primary">
               Daily starten
@@ -86,7 +86,23 @@
           </div>
         </div>
 
-        <section id="sessionTimers" class="timers" aria-live="polite">
+        <!-- Confirm Modal -->
+        <div id="confirmModal" class="modal-overlay" hidden>
+          <div class="modal">
+            <div class="modal__header">
+              <h2>Daily abbrechen?</h2>
+            </div>
+            <div class="modal__body">
+              <p style="color: var(--muted);">Der gesamte Fortschritt geht verloren.</p>
+            </div>
+            <div class="modal__footer">
+              <button id="confirmCancel" type="button" class="btn btn--ghost">Zurück</button>
+              <button id="confirmOk" type="button" class="btn btn--primary">Ja, abbrechen</button>
+            </div>
+          </div>
+        </div>
+
+        <section id="sessionTimers" class="timers" aria-live="polite" hidden>
           <article id="totalCard" class="panel timer-card">
             <div class="timer-card__meta">
               <h2>Gesamtzeit</h2>
@@ -110,7 +126,7 @@
           </article>
         </section>
 
-        <section id="sessionControls" class="session-controls-wrapper">
+        <section id="sessionControls" class="session-controls-wrapper" hidden>
           <div class="panel controls">
             <div id="participantsSection" class="participants-section">
               <div class="participants-meta" aria-live="polite">
