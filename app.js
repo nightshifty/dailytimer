@@ -42,7 +42,9 @@ const ui = {
   settingsCloseButton: document.querySelector("#settingsCloseButton"),
   settingsShareButton: document.querySelector("#settingsShareButton"),
   settingsSaveButton: document.querySelector("#settingsSaveButton"),
-  crewTextarea: document.querySelector("#crewTextarea"),
+  crewList: document.querySelector("#crewList"),
+  crewAddInput: document.querySelector("#crewAddInput"),
+  crewAddButton: document.querySelector("#crewAddButton"),
   crewChips: document.querySelector("#crewChips"),
   crewEmptyHint: document.querySelector("#crewEmptyHint"),
   crewSetupLink: document.querySelector("#crewSetupLink"),
@@ -74,6 +76,8 @@ const state = {
   currentSpeaker: null,       // Name of the current speaker (or null if none selected)
 };
 
+let modalCrew = [];
+
 // ─────────────────────────────────────────────────────────────
 // Utility Functions
 // ─────────────────────────────────────────────────────────────
@@ -98,13 +102,6 @@ function clamp(value, min, max) {
 
 function formatMinutesValue(ms) {
   return String(Math.round(ms / 60_000));
-}
-
-function parseNames(text) {
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
 }
 
 function dedupeNames(names) {
@@ -461,10 +458,54 @@ function updateStartButtonState() {
 // Settings Modal
 // ─────────────────────────────────────────────────────────────
 
+function renderModalCrewList() {
+  ui.crewList.innerHTML = "";
+  for (let i = 0; i < modalCrew.length; i++) {
+    const item = document.createElement("div");
+    item.className = "crew-list__item";
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "crew-list__name";
+    nameSpan.textContent = modalCrew[i];
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "crew-list__remove";
+    removeBtn.setAttribute("aria-label", `${modalCrew[i]} entfernen`);
+    removeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+    const index = i;
+    removeBtn.addEventListener("click", () => {
+      modalCrew.splice(index, 1);
+      renderModalCrewList();
+    });
+
+    item.appendChild(nameSpan);
+    item.appendChild(removeBtn);
+    ui.crewList.appendChild(item);
+  }
+}
+
+function addCrewName() {
+  const name = ui.crewAddInput.value.trim();
+  if (!name) return;
+  if (modalCrew.some((n) => n.toLowerCase() === name.toLowerCase())) {
+    ui.crewAddInput.value = "";
+    ui.crewAddInput.focus();
+    return;
+  }
+  modalCrew.push(name);
+  ui.crewAddInput.value = "";
+  renderModalCrewList();
+  ui.crewList.scrollTop = ui.crewList.scrollHeight;
+  ui.crewAddInput.focus();
+}
+
 function openSettingsModal() {
-  ui.crewTextarea.value = state.crew.join("\n");
+  modalCrew = [...state.crew];
+  renderModalCrewList();
   ui.settingsModal.hidden = false;
-  ui.crewTextarea.focus();
+  ui.crewAddInput.focus();
 }
 
 function closeSettingsModal() {
@@ -472,7 +513,7 @@ function closeSettingsModal() {
 }
 
 function saveSettings() {
-  const newCrew = dedupeNames(parseNames(ui.crewTextarea.value));
+  const newCrew = dedupeNames(modalCrew);
   state.crew = newCrew;
   saveCrew(newCrew);
 
@@ -510,7 +551,7 @@ function showShareFeedback(text) {
 async function shareCrew() {
   const crewToShare = ui.settingsModal.hidden
     ? state.crew
-    : dedupeNames(parseNames(ui.crewTextarea.value));
+    : dedupeNames(modalCrew);
 
   if (crewToShare.length === 0) {
     updateStatusLine("Keine Besatzung zum Teilen vorhanden.");
@@ -838,6 +879,14 @@ function init() {
   ui.settingsCloseButton.addEventListener("click", closeSettingsModal);
   ui.settingsShareButton.addEventListener("click", shareCrew);
   ui.settingsSaveButton.addEventListener("click", saveSettings);
+  ui.crewAddButton.addEventListener("click", addCrewName);
+  ui.crewAddInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addCrewName();
+    }
+  });
+
   ui.attendanceToggle.addEventListener("click", () => {
     state.attendanceCollapsed = !state.attendanceCollapsed;
     updateAttendanceVisibility();

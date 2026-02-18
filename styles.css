@@ -824,6 +824,116 @@ body {
   gap: 0.5rem;
 }
 
+/* Crew List (Settings Modal) */
+.crew-list {
+  max-height: 16rem;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: none;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.crew-list:empty {
+  display: none;
+}
+
+.crew-list:empty + .crew-list__input-row {
+  border-radius: 0.75rem;
+}
+
+.crew-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.crew-list__item:last-child {
+  border-bottom: none;
+}
+
+.crew-list__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crew-list__remove {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 0.4rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.crew-list__remove:hover {
+  background: rgba(255, 79, 79, 0.18);
+  color: var(--danger);
+}
+
+.crew-list__input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.35rem 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.crew-list__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  padding: 0.4rem 0;
+  outline: none;
+}
+
+.crew-list__input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.crew-list__add-btn {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.crew-list__add-btn:hover {
+  background: rgba(0, 210, 180, 0.18);
+  color: var(--accent);
+}
+
 /* Setup Crew Chips */
 .chips-container--setup {
   min-height: 2.8rem;
