@@ -60,6 +60,7 @@ const ui = {
   wheelCanvas: document.querySelector("#wheelCanvas"),
   wheelResult: document.querySelector("#wheelResult"),
   spinWheelButton: document.querySelector("#spinWheelButton"),
+  settingsWheelButton: document.querySelector("#settingsWheelButton"),
 };
 
 const state = {
@@ -710,6 +711,7 @@ function finishLastSpeaker() {
   const label = mins === "1" ? "Minute" : "Minuten";
   ui.farewellMeta.textContent = `Daily abgeschlossen in ${mins} ${label}`;
   updateScreenVisibility();
+  launchConfetti();
   updateRunningPanelsVisibility();
   updateHeaderFocusVisibility();
   updateSetupVisibility();
@@ -837,6 +839,77 @@ const WHEEL_COLORS = [
   "#a78bfa", "#f97316", "#38bdf8", "#fb7185",
 ];
 
+const WINNER_EMOJIS = ["🎉", "🚀", "🐬", "🦄"];
+
+function launchConfetti() {
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:fixed;inset:0;width:100%;height:100%;z-index:200;pointer-events:none";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width;
+  const h = canvas.height;
+  const colors = [...WHEEL_COLORS, "#ffd700", "#ffffff", "#ff85a2", "#7cff6b"];
+
+  // Two cannons: bottom-left and bottom-right, firing upward in a burst
+  const particles = [];
+  for (let i = 0; i < 100; i++) {
+    const fromLeft = Math.random() < 0.5;
+    const originX = fromLeft ? w * 0.15 : w * 0.85;
+    const spread = (fromLeft ? 1 : -1) * (0.3 + Math.random() * 0.7);
+    particles.push({
+      x: originX + (Math.random() - 0.5) * 30,
+      y: h * 0.66 + (Math.random() - 0.5) * 20,
+      w: 5 + Math.random() * 7,
+      h: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: spread * (6 + Math.random() * 8),
+      vy: -(12 + Math.random() * 10),
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.35,
+      drag: 0.97 + Math.random() * 0.02,
+    });
+  }
+
+  const start = performance.now();
+
+  function draw() {
+    const elapsed = performance.now() - start;
+    if (elapsed > 2200) {
+      canvas.remove();
+      return;
+    }
+
+    // Fade out in the last 1400ms
+    const fade = elapsed > 800 ? 1 - (elapsed - 800) / 1400 : 1;
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalAlpha = fade;
+
+    for (const p of particles) {
+      p.vy += 0.45; // gravity
+      p.vx *= p.drag;
+      p.vy *= p.drag;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rotSpeed;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+}
+
 let wheelSpinning = false;
 let wheelNames = [];
 let wheelAngleDeg = 0;
@@ -894,7 +967,7 @@ function openWheelModal() {
   }
 
   if (wheelNames.length < 2) {
-    ui.wheelResult.textContent = `🎉 ${wheelNames[0]} moderiert!`;
+    ui.wheelResult.textContent = `${WINNER_EMOJIS[Math.floor(Math.random() * WINNER_EMOJIS.length)]} ${wheelNames[0]} moderiert!`;
     ui.wheelResult.hidden = false;
     ui.wheelSpinButton.hidden = true;
     ui.wheelCanvas.closest(".wheel-wrapper").hidden = true;
@@ -922,16 +995,25 @@ function spinWheel() {
   ui.wheelSpinButton.disabled = true;
   ui.wheelResult.hidden = true;
 
-  // Determine winner
-  const winnerIndex = Math.floor(Math.random() * wheelNames.length);
   const sliceAngle = 360 / wheelNames.length;
 
+  // Pick a random segment boundary, then land 1%-20% of a slice to either side.
+  // This creates suspense: the pointer ends up near an edge, could be either name.
+  const boundaryIndex = Math.floor(Math.random() * wheelNames.length);
+  const boundaryAngle = boundaryIndex * sliceAngle;
+  const side = Math.random() < 0.5 ? 1 : -1; // before or after boundary
+  const offset = (Math.random() * 0.19 + 0.01) * sliceAngle; // 1%-20% into slice
+  const landAngle = boundaryAngle + side * offset;
+
   // Pointer is at top (12 o'clock). Canvas 0° = 3 o'clock, so top = -90°.
-  const sliceCenter = winnerIndex * sliceAngle + sliceAngle / 2;
-  const alignAngle = -90 - sliceCenter;
+  const alignAngle = -90 - landAngle;
   // Add full spins for drama
   const fullSpins = (6 + Math.floor(Math.random() * 4)) * 360;
   const targetDeg = wheelAngleDeg + fullSpins + ((alignAngle - wheelAngleDeg) % 360 + 360) % 360;
+
+  // Determine winner from final landing position
+  const finalAngle = ((landAngle % 360) + 360) % 360;
+  const winnerIndex = Math.floor(finalAngle / sliceAngle) % wheelNames.length;
 
   const startDeg = wheelAngleDeg;
   const totalDelta = targetDeg - startDeg;
@@ -953,10 +1035,12 @@ function spinWheel() {
       wheelAngleDeg = targetDeg;
       setWheelAngle(targetDeg);
       wheelSpinning = false;
-      ui.wheelResult.textContent = `🎉 ${wheelNames[winnerIndex]} moderiert!`;
+      const emoji = WINNER_EMOJIS[Math.floor(Math.random() * WINNER_EMOJIS.length)];
+      ui.wheelResult.textContent = `${emoji} ${wheelNames[winnerIndex]} moderiert!`;
       ui.wheelResult.hidden = false;
       ui.wheelSpinButton.disabled = false;
       ui.wheelSpinButton.textContent = "Nochmal drehen";
+      launchConfetti();
     }
   }
 
@@ -1032,6 +1116,12 @@ function init() {
   ui.attendanceToggle.addEventListener("click", () => {
     state.attendanceCollapsed = !state.attendanceCollapsed;
     updateAttendanceVisibility();
+  });
+
+  // Settings wheel button
+  ui.settingsWheelButton.addEventListener("click", () => {
+    closeSettingsModal();
+    openWheelModal();
   });
 
   // Wheel modal event listeners

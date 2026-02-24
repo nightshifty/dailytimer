@@ -349,6 +349,11 @@ body {
   color: #332200;
 }
 
+.btn--small {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+}
+
 .btn--ghost {
   color: var(--text);
   background: rgba(255, 255, 255, 0.1);
@@ -408,6 +413,10 @@ body {
   margin: 0;
   font-size: clamp(2rem, 6vw, 3.4rem);
   line-height: 1.1;
+}
+
+.farewell__content .btn:first-of-type {
+  margin-top: 3.5rem;
 }
 
 .farewell__subtitle {
@@ -820,8 +829,13 @@ body {
 .modal__footer {
   padding: 0 1rem 1rem;
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+#settingsWheelButton {
+  margin-right: auto;
 }
 
 /* Crew List (Settings Modal) */
