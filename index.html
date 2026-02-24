@@ -181,11 +181,36 @@
           <p id="farewellMeta" class="eyebrow">Daily abgeschlossen</p>
           <h2>Danke für eure Zeit</h2>
           <p class="farewell__subtitle">Happy Hacking</p>
+          <button id="spinWheelButton" type="button" class="btn btn--accent">
+            Moderator auslosen
+          </button>
           <button id="restartButton" type="button" class="btn btn--primary">
             Neue Runde starten
           </button>
         </div>
       </section>
+
+      <!-- Wheel Modal -->
+      <div id="wheelModal" class="modal-overlay" hidden>
+        <div class="modal wheel-modal">
+          <div class="modal__header">
+            <h2>Wer moderiert morgen?</h2>
+            <button id="wheelCloseButton" type="button" class="modal__close" aria-label="Schließen">✕</button>
+          </div>
+          <div class="modal__body wheel-modal__body">
+            <div class="wheel-wrapper">
+              <div class="wheel-pointer"></div>
+              <div class="wheel-container">
+                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+              </div>
+            </div>
+            <button id="wheelSpinButton" type="button" class="btn btn--primary wheel-spin-btn">
+              Drehen
+            </button>
+            <p id="wheelResult" class="wheel-result" hidden></p>
+          </div>
+        </div>
+      </div>
     </main>
 
     <script type="module" src="./app.js"></script>

@@ -53,6 +53,13 @@ const ui = {
   confirmModal: document.querySelector("#confirmModal"),
   confirmCancel: document.querySelector("#confirmCancel"),
   confirmOk: document.querySelector("#confirmOk"),
+  // Wheel modal elements
+  wheelModal: document.querySelector("#wheelModal"),
+  wheelCloseButton: document.querySelector("#wheelCloseButton"),
+  wheelSpinButton: document.querySelector("#wheelSpinButton"),
+  wheelCanvas: document.querySelector("#wheelCanvas"),
+  wheelResult: document.querySelector("#wheelResult"),
+  spinWheelButton: document.querySelector("#spinWheelButton"),
 };
 
 const state = {
@@ -822,6 +829,141 @@ function validateSetup() {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Wheel (Moderator Spinner)
+// ─────────────────────────────────────────────────────────────
+
+const WHEEL_COLORS = [
+  "#00d2b4", "#ffbc42", "#ff6b6b", "#4ecdc4",
+  "#a78bfa", "#f97316", "#38bdf8", "#fb7185",
+];
+
+let wheelSpinning = false;
+let wheelNames = [];
+let wheelAngleDeg = 0;
+
+function drawWheel(names) {
+  const canvas = ui.wheelCanvas;
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+  const center = size / 2;
+  const radius = center - 2;
+  const sliceAngle = (2 * Math.PI) / names.length;
+
+  ctx.clearRect(0, 0, size, size);
+  ctx.save();
+  ctx.translate(center, center);
+
+  for (let i = 0; i < names.length; i++) {
+    const startAngle = i * sliceAngle;
+    const endAngle = startAngle + sliceAngle;
+
+    // Draw slice
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, radius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Draw name
+    ctx.save();
+    const midAngle = startAngle + sliceAngle / 2;
+    ctx.rotate(midAngle);
+    ctx.fillStyle = "#042d29";
+    ctx.font = `bold ${Math.min(14, 120 / names.length)}px system-ui, sans-serif`;
+    ctx.textAlign = "right";
+    ctx.fillText(names[i], radius - 12, 5);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function setWheelAngle(deg) {
+  ui.wheelCanvas.style.transform = `rotate(${deg}deg)`;
+}
+
+function openWheelModal() {
+  wheelNames = state.participants.length > 0 ? [...state.participants] : [...state.crew];
+
+  if (wheelNames.length === 0) {
+    return;
+  }
+
+  if (wheelNames.length < 2) {
+    ui.wheelResult.textContent = `🎉 ${wheelNames[0]} moderiert!`;
+    ui.wheelResult.hidden = false;
+    ui.wheelSpinButton.hidden = true;
+    ui.wheelCanvas.closest(".wheel-wrapper").hidden = true;
+  } else {
+    ui.wheelResult.hidden = true;
+    ui.wheelSpinButton.hidden = false;
+    ui.wheelSpinButton.disabled = false;
+    ui.wheelSpinButton.textContent = "Drehen";
+    ui.wheelCanvas.closest(".wheel-wrapper").hidden = false;
+    drawWheel(wheelNames);
+    wheelAngleDeg = 0;
+    setWheelAngle(0);
+  }
+
+  ui.wheelModal.hidden = false;
+}
+
+function closeWheelModal() {
+  ui.wheelModal.hidden = true;
+}
+
+function spinWheel() {
+  if (wheelSpinning || wheelNames.length < 2) return;
+  wheelSpinning = true;
+  ui.wheelSpinButton.disabled = true;
+  ui.wheelResult.hidden = true;
+
+  // Determine winner
+  const winnerIndex = Math.floor(Math.random() * wheelNames.length);
+  const sliceAngle = 360 / wheelNames.length;
+
+  // Pointer is at top (12 o'clock). Canvas 0° = 3 o'clock, so top = -90°.
+  const sliceCenter = winnerIndex * sliceAngle + sliceAngle / 2;
+  const alignAngle = -90 - sliceCenter;
+  // Add full spins for drama
+  const fullSpins = (6 + Math.floor(Math.random() * 4)) * 360;
+  const targetDeg = wheelAngleDeg + fullSpins + ((alignAngle - wheelAngleDeg) % 360 + 360) % 360;
+
+  const startDeg = wheelAngleDeg;
+  const totalDelta = targetDeg - startDeg;
+  const duration = 5000;
+  const startTime = performance.now();
+
+  function animate() {
+    const elapsed = performance.now() - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    // Ease-out: fast start, dramatic slow-down at the end
+    const eased = 1 - Math.pow(1 - t, 4);
+
+    wheelAngleDeg = startDeg + totalDelta * eased;
+    setWheelAngle(wheelAngleDeg);
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      wheelAngleDeg = targetDeg;
+      setWheelAngle(targetDeg);
+      wheelSpinning = false;
+      ui.wheelResult.textContent = `🎉 ${wheelNames[winnerIndex]} moderiert!`;
+      ui.wheelResult.hidden = false;
+      ui.wheelSpinButton.disabled = false;
+      ui.wheelSpinButton.textContent = "Nochmal drehen";
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ─────────────────────────────────────────────────────────────
 // Initialization
 // ─────────────────────────────────────────────────────────────
 
@@ -892,6 +1034,16 @@ function init() {
     updateAttendanceVisibility();
   });
 
+  // Wheel modal event listeners
+  ui.spinWheelButton.addEventListener("click", openWheelModal);
+  ui.wheelSpinButton.addEventListener("click", spinWheel);
+  ui.wheelCloseButton.addEventListener("click", closeWheelModal);
+  ui.wheelModal.addEventListener("click", (event) => {
+    if (event.target === ui.wheelModal) {
+      closeWheelModal();
+    }
+  });
+
   // Close modal on backdrop click
   ui.settingsModal.addEventListener("click", (event) => {
     if (event.target === ui.settingsModal) {
@@ -902,7 +1054,9 @@ function init() {
   // Close modals on Escape key
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      if (!ui.confirmModal.hidden) {
+      if (!ui.wheelModal.hidden) {
+        closeWheelModal();
+      } else if (!ui.confirmModal.hidden) {
         ui.confirmModal.hidden = true;
       } else if (!ui.settingsModal.hidden) {
         closeSettingsModal();

@@ -991,6 +991,66 @@ body {
   color: var(--text);
 }
 
+/* Wheel Modal */
+.wheel-modal {
+  width: min(100%, 24rem);
+}
+
+.wheel-modal__body {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.wheel-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 22px solid var(--accent-2);
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.wheel-container {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+#wheelCanvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.wheel-spin-btn {
+  width: 100%;
+  max-width: 16rem;
+  padding: 0.85rem 1.2rem;
+  font-size: 1rem;
+}
+
+.wheel-result {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-2);
+}
+
 /* Responsive adjustments for setup form with crew chips */
 @media (min-width: 48rem) {
   .field--crew {
