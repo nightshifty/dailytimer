@@ -27,6 +27,17 @@
           <p id="mainSubtitle" class="subtitle">Gesamtzeit und Redezeit pro Person live im Blick.</p>
         </header>
 
+        <div id="sprintBanner" class="sprint-banner" hidden>
+          <div class="sprint-banner__header">
+            <span class="sprint-banner__label">Sprint-Ziel</span>
+            <span id="sprintDaysLeft" class="sprint-banner__days"></span>
+          </div>
+          <p id="sprintGoalText" class="sprint-banner__goal"></p>
+          <div class="sprint-banner__progress">
+            <div id="sprintProgressBar" class="sprint-banner__progress-bar"></div>
+          </div>
+        </div>
+
         <section id="setupPanel" class="panel setup" aria-label="Einstellungen">
           <form id="setupForm" class="setup__form">
             <label class="field">
@@ -77,6 +88,27 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                   </svg>
                 </button>
+              </div>
+            </div>
+            <div class="modal__body modal__body--sprint">
+              <label class="field" style="margin-bottom:0.35rem">
+                <span>Sprint</span>
+              </label>
+              <div class="sprint-settings">
+                <label class="field">
+                  <span>Sprint-Ziel</span>
+                  <textarea id="sprintGoalInput" placeholder="Was ist das Ziel dieses Sprints?" rows="2"></textarea>
+                </label>
+                <div class="sprint-settings__dates">
+                  <label class="field">
+                    <span>Sprint-Start</span>
+                    <input id="sprintStartInput" type="date" />
+                  </label>
+                  <label class="field">
+                    <span>Sprint-Ende</span>
+                    <input id="sprintEndInput" type="date" />
+                  </label>
+                </div>
               </div>
             </div>
             <div class="modal__footer">
