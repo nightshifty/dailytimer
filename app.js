@@ -143,6 +143,18 @@ function loadCrewFromUrl() {
   return dedupeNames(namesFromUrl);
 }
 
+function loadSprintFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const goal = params.get("sprintGoal")?.trim();
+  const start = params.get("sprintStart")?.trim();
+  const end = params.get("sprintEnd")?.trim();
+
+  if (goal || end) {
+    return { goal: goal || "", start: start || "", end: end || "" };
+  }
+  return null;
+}
+
 function getCrewOrder(name) {
   const idx = state.crew.indexOf(name);
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
@@ -642,12 +654,18 @@ function saveSettings() {
   closeSettingsModal();
 }
 
-function createCrewShareUrl(names) {
+function createShareUrl(names, sprint) {
   const shareUrl = new URL(window.location.href);
   shareUrl.search = "";
 
   for (const name of names) {
     shareUrl.searchParams.append("name", name);
+  }
+
+  if (sprint) {
+    if (sprint.goal) shareUrl.searchParams.append("sprintGoal", sprint.goal);
+    if (sprint.start) shareUrl.searchParams.append("sprintStart", sprint.start);
+    if (sprint.end) shareUrl.searchParams.append("sprintEnd", sprint.end);
   }
 
   return shareUrl.toString();
@@ -675,7 +693,18 @@ async function shareCrew() {
     return;
   }
 
-  const shareUrl = createCrewShareUrl(crewToShare);
+  // Include sprint data from modal inputs (if open) or from localStorage
+  let sprintToShare;
+  if (!ui.settingsModal.hidden) {
+    const goal = ui.sprintGoalInput.value.trim();
+    const start = ui.sprintStartInput.value;
+    const end = ui.sprintEndInput.value;
+    if (goal || end) sprintToShare = { goal, start, end };
+  } else {
+    sprintToShare = loadSprint();
+  }
+
+  const shareUrl = createShareUrl(crewToShare, sprintToShare);
 
   if (navigator.share) {
     try {
@@ -1165,6 +1194,12 @@ function init() {
   state.crew = crewFromUrl.length > 0 ? crewFromUrl : loadCrew();
   // Initially, all crew members are present
   state.presentMembers = new Set(state.crew);
+
+  // Load sprint from URL (priority) or localStorage
+  const sprintFromUrl = loadSprintFromUrl();
+  if (sprintFromUrl) {
+    saveSprint(sprintFromUrl);
+  }
 
   // Event listeners for setup form
   ui.setupForm.addEventListener("submit", (event) => {
