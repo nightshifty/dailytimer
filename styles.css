@@ -1005,6 +1005,106 @@ body {
   color: var(--text);
 }
 
+/* Sprint Banner */
+.sprint-banner {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0, 210, 180, 0.2);
+  background: rgba(0, 210, 180, 0.06);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+}
+
+.sprint-banner__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.sprint-banner__label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sprint-banner__days {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 210, 180, 0.12);
+  border: 1px solid rgba(0, 210, 180, 0.25);
+}
+
+.sprint-banner__days--warning {
+  color: var(--accent-2);
+  background: rgba(255, 188, 66, 0.14);
+  border-color: rgba(255, 188, 66, 0.35);
+}
+
+.sprint-banner__days--urgent {
+  color: var(--danger);
+  background: rgba(255, 79, 79, 0.14);
+  border-color: rgba(255, 79, 79, 0.35);
+}
+
+.sprint-banner__days--ended {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.sprint-banner__goal {
+  margin: 0 0 0.6rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.sprint-banner__progress {
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.sprint-banner__progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #39f0c1);
+  transition: width 0.3s ease;
+}
+
+.sprint-banner__progress-bar--warning {
+  background: linear-gradient(90deg, var(--accent-2), #ffd86b);
+}
+
+.sprint-banner__progress-bar--ended {
+  background: var(--muted);
+}
+
+/* Sprint Settings Section */
+.modal__body--sprint {
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sprint-settings {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.sprint-settings__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
 /* Wheel Modal */
 .wheel-modal {
   width: min(100%, 24rem);

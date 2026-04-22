@@ -1,5 +1,6 @@
 const DEFAULT_TOTAL_MINUTES = 15;
 const CREW_STORAGE_KEY = "dailyTimerCrew";
+const SPRINT_STORAGE_KEY = "dailyTimerSprint";
 
 const ui = {
   sessionScreen: document.querySelector("#sessionScreen"),
@@ -49,6 +50,14 @@ const ui = {
   crewEmptyHint: document.querySelector("#crewEmptyHint"),
   crewSetupLink: document.querySelector("#crewSetupLink"),
   mainEyebrow: document.querySelector("#mainEyebrow"),
+  // Sprint elements
+  sprintBanner: document.querySelector("#sprintBanner"),
+  sprintGoalText: document.querySelector("#sprintGoalText"),
+  sprintDaysLeft: document.querySelector("#sprintDaysLeft"),
+  sprintProgressBar: document.querySelector("#sprintProgressBar"),
+  sprintGoalInput: document.querySelector("#sprintGoalInput"),
+  sprintStartInput: document.querySelector("#sprintStartInput"),
+  sprintEndInput: document.querySelector("#sprintEndInput"),
   // Confirm modal elements
   confirmModal: document.querySelector("#confirmModal"),
   confirmCancel: document.querySelector("#confirmCancel"),
@@ -170,6 +179,87 @@ function loadCrew() {
     console.warn("Could not load crew from localStorage:", e);
   }
   return [];
+}
+
+// ─────────────────────────────────────────────────────────────
+// Sprint Persistence & Display
+// ─────────────────────────────────────────────────────────────
+
+function saveSprint(sprint) {
+  try {
+    localStorage.setItem(SPRINT_STORAGE_KEY, JSON.stringify(sprint));
+  } catch (e) {
+    console.warn("Could not save sprint to localStorage:", e);
+  }
+}
+
+function loadSprint() {
+  try {
+    const saved = localStorage.getItem(SPRINT_STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn("Could not load sprint from localStorage:", e);
+  }
+  return null;
+}
+
+function renderSprintBanner() {
+  const sprint = loadSprint();
+  if (!sprint || !sprint.goal || !sprint.end) {
+    ui.sprintBanner.hidden = true;
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const endDate = new Date(sprint.end + "T00:00:00");
+  const startDate = sprint.start ? new Date(sprint.start + "T00:00:00") : null;
+
+  const diffMs = endDate - today;
+  const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (daysLeft < 0) {
+    ui.sprintDaysLeft.textContent = "Sprint beendet";
+    ui.sprintDaysLeft.className = "sprint-banner__days sprint-banner__days--ended";
+  } else if (daysLeft === 0) {
+    ui.sprintDaysLeft.textContent = "Letzter Tag";
+    ui.sprintDaysLeft.className = "sprint-banner__days sprint-banner__days--urgent";
+  } else if (daysLeft === 1) {
+    ui.sprintDaysLeft.textContent = "Noch 1 Tag";
+    ui.sprintDaysLeft.className = "sprint-banner__days sprint-banner__days--urgent";
+  } else if (daysLeft <= 3) {
+    ui.sprintDaysLeft.textContent = `Noch ${daysLeft} Tage`;
+    ui.sprintDaysLeft.className = "sprint-banner__days sprint-banner__days--warning";
+  } else {
+    ui.sprintDaysLeft.textContent = `Noch ${daysLeft} Tage`;
+    ui.sprintDaysLeft.className = "sprint-banner__days";
+  }
+
+  ui.sprintGoalText.textContent = sprint.goal;
+
+  // Calculate progress percentage
+  if (startDate && startDate < endDate) {
+    const totalDuration = endDate - startDate;
+    const elapsed = today - startDate;
+    const progress = clamp(elapsed / totalDuration, 0, 1) * 100;
+    ui.sprintProgressBar.style.width = `${progress}%`;
+
+    if (daysLeft < 0) {
+      ui.sprintProgressBar.classList.add("sprint-banner__progress-bar--ended");
+      ui.sprintProgressBar.classList.remove("sprint-banner__progress-bar--warning");
+    } else if (daysLeft <= 3) {
+      ui.sprintProgressBar.classList.add("sprint-banner__progress-bar--warning");
+      ui.sprintProgressBar.classList.remove("sprint-banner__progress-bar--ended");
+    } else {
+      ui.sprintProgressBar.classList.remove("sprint-banner__progress-bar--warning", "sprint-banner__progress-bar--ended");
+    }
+  } else {
+    ui.sprintProgressBar.style.width = "0%";
+  }
+
+  ui.sprintBanner.hidden = false;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -514,6 +604,12 @@ function addCrewName() {
 function openSettingsModal() {
   modalCrew = [...state.crew];
   renderModalCrewList();
+
+  const sprint = loadSprint();
+  ui.sprintGoalInput.value = sprint?.goal || "";
+  ui.sprintStartInput.value = sprint?.start || "";
+  ui.sprintEndInput.value = sprint?.end || "";
+
   ui.settingsModal.hidden = false;
   ui.crewAddInput.focus();
 }
@@ -527,11 +623,23 @@ function saveSettings() {
   state.crew = newCrew;
   saveCrew(newCrew);
 
+  // Save sprint settings
+  const sprintGoal = ui.sprintGoalInput.value.trim();
+  const sprintStart = ui.sprintStartInput.value;
+  const sprintEnd = ui.sprintEndInput.value;
+
+  if (sprintGoal || sprintEnd) {
+    saveSprint({ goal: sprintGoal, start: sprintStart, end: sprintEnd });
+  } else {
+    localStorage.removeItem(SPRINT_STORAGE_KEY);
+  }
+
   // Reset present members to all crew (since crew changed)
   state.presentMembers = new Set(newCrew);
 
   renderCrewChips();
   renderDailyCrewChips();
+  renderSprintBanner();
   updateStartButtonState();
   closeSettingsModal();
 }
@@ -1241,6 +1349,7 @@ function init() {
   state.attendanceCollapsed = window.matchMedia("(max-width: 48rem)").matches;
   updateAttendanceVisibility();
   renderCrewChips();
+  renderSprintBanner();
   updateStartButtonState();
   resetSession();
 
