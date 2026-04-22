@@ -61,6 +61,8 @@ const ui = {
   wheelResult: document.querySelector("#wheelResult"),
   spinWheelButton: document.querySelector("#spinWheelButton"),
   settingsWheelButton: document.querySelector("#settingsWheelButton"),
+  wheelParticipants: document.querySelector("#wheelParticipants"),
+  wheelParticipantsHint: document.querySelector("#wheelParticipantsHint"),
 };
 
 const state = {
@@ -913,6 +915,7 @@ function launchConfetti() {
 let wheelSpinning = false;
 let wheelNames = [];
 let wheelAngleDeg = 0;
+const wheelSelection = new Set();
 
 function drawWheel(names) {
   const canvas = ui.wheelCanvas;
@@ -959,28 +962,99 @@ function setWheelAngle(deg) {
   ui.wheelCanvas.style.transform = `rotate(${deg}deg)`;
 }
 
-function openWheelModal() {
-  wheelNames = state.participants.length > 0 ? [...state.participants] : [...state.crew];
+function getWheelRoster() {
+  if (state.crew.length > 0) {
+    return [...state.crew];
+  }
+  if (state.participants.length > 0) {
+    return [...state.participants];
+  }
+  return [];
+}
 
-  if (wheelNames.length === 0) {
+function getWheelPreselection(roster) {
+  const sessionActive = state.running || state.completed;
+  const source = sessionActive ? state.participants : Array.from(state.presentMembers);
+  const preselected = new Set(source);
+  const filtered = roster.filter((name) => preselected.has(name));
+  return filtered.length > 0 ? filtered : roster;
+}
+
+function getSelectedWheelNames(roster) {
+  return roster.filter((name) => wheelSelection.has(name));
+}
+
+function renderWheelParticipants(roster) {
+  ui.wheelParticipants.innerHTML = "";
+
+  for (const name of roster) {
+    const item = document.createElement("label");
+    item.className = "wheel-participants__item";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "wheel-participants__checkbox";
+    checkbox.value = name;
+    checkbox.checked = wheelSelection.has(name);
+    checkbox.disabled = wheelSpinning;
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        wheelSelection.add(name);
+      } else {
+        wheelSelection.delete(name);
+      }
+      refreshWheelFromSelection(roster);
+    });
+
+    const label = document.createElement("span");
+    label.className = "wheel-participants__name";
+    label.textContent = name;
+
+    item.appendChild(checkbox);
+    item.appendChild(label);
+    ui.wheelParticipants.appendChild(item);
+  }
+}
+
+function refreshWheelFromSelection(roster) {
+  const selected = getSelectedWheelNames(roster);
+  wheelNames = selected;
+
+  const hasEnough = selected.length >= 2;
+  ui.wheelSpinButton.disabled = wheelSpinning || !hasEnough;
+  ui.wheelParticipantsHint.hidden = hasEnough;
+  ui.wheelResult.hidden = true;
+
+  if (selected.length === 0) {
+    ui.wheelCanvas.getContext("2d").clearRect(0, 0, ui.wheelCanvas.width, ui.wheelCanvas.height);
+  } else {
+    drawWheel(selected);
+  }
+
+  wheelAngleDeg = 0;
+  setWheelAngle(0);
+}
+
+function openWheelModal() {
+  const roster = getWheelRoster();
+
+  if (roster.length === 0) {
     return;
   }
 
-  if (wheelNames.length < 2) {
-    ui.wheelResult.textContent = `${WINNER_EMOJIS[Math.floor(Math.random() * WINNER_EMOJIS.length)]} ${wheelNames[0]} moderiert!`;
-    ui.wheelResult.hidden = false;
-    ui.wheelSpinButton.hidden = true;
-    ui.wheelCanvas.closest(".wheel-wrapper").hidden = true;
-  } else {
-    ui.wheelResult.hidden = true;
-    ui.wheelSpinButton.hidden = false;
-    ui.wheelSpinButton.disabled = false;
-    ui.wheelSpinButton.textContent = "Drehen";
-    ui.wheelCanvas.closest(".wheel-wrapper").hidden = false;
-    drawWheel(wheelNames);
-    wheelAngleDeg = 0;
-    setWheelAngle(0);
+  wheelSelection.clear();
+  for (const name of getWheelPreselection(roster)) {
+    wheelSelection.add(name);
   }
+
+  wheelSpinning = false;
+  ui.wheelSpinButton.hidden = false;
+  ui.wheelSpinButton.textContent = "Drehen";
+  ui.wheelCanvas.closest(".wheel-wrapper").hidden = false;
+
+  renderWheelParticipants(roster);
+  refreshWheelFromSelection(roster);
 
   ui.wheelModal.hidden = false;
 }
@@ -989,11 +1063,19 @@ function closeWheelModal() {
   ui.wheelModal.hidden = true;
 }
 
+function setWheelCheckboxesDisabled(disabled) {
+  const checkboxes = ui.wheelParticipants.querySelectorAll(".wheel-participants__checkbox");
+  for (const cb of checkboxes) {
+    cb.disabled = disabled;
+  }
+}
+
 function spinWheel() {
   if (wheelSpinning || wheelNames.length < 2) return;
   wheelSpinning = true;
   ui.wheelSpinButton.disabled = true;
   ui.wheelResult.hidden = true;
+  setWheelCheckboxesDisabled(true);
 
   const sliceAngle = 360 / wheelNames.length;
 
@@ -1040,6 +1122,7 @@ function spinWheel() {
       ui.wheelResult.hidden = false;
       ui.wheelSpinButton.disabled = false;
       ui.wheelSpinButton.textContent = "Nochmal drehen";
+      setWheelCheckboxesDisabled(false);
       launchConfetti();
     }
   }
