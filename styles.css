@@ -159,6 +159,7 @@ body {
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -181,9 +182,25 @@ body {
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
   outline: 2px solid rgba(0, 210, 180, 0.45);
   outline-offset: 2px;
+}
+
+.field select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23afc4ce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  padding-right: 2.4rem;
+}
+
+.field select option {
+  color: var(--text);
+  background: var(--bg-1);
 }
 
 .timers {
@@ -415,15 +432,115 @@ body {
   line-height: 1.1;
 }
 
-.farewell__content .btn:first-of-type {
-  margin-top: 3.5rem;
-}
-
 .farewell__subtitle {
   margin: 0;
   color: var(--accent-2);
   font-size: clamp(1.1rem, 3.5vw, 1.6rem);
   letter-spacing: 0.02em;
+}
+
+.farewell__question {
+  display: grid;
+  justify-items: center;
+  gap: 1.2rem;
+  margin-top: 3.5rem;
+  max-width: 34rem;
+}
+
+.farewell__question-text {
+  margin: 0;
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.farewell__question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.farewell__question-actions .btn {
+  min-width: 8rem;
+}
+
+.farewell__question-actions .btn[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.farewell__checklist {
+  width: min(100%, 34rem);
+  margin-top: 1.8rem;
+  text-align: left;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.farewell__checklist-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--accent-2);
+}
+
+.farewell-check {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.farewell-check__label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-border);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.farewell-check__label:hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.farewell-check__item:has(.farewell-check__checkbox:checked) .farewell-check__label {
+  background: rgba(0, 210, 180, 0.18);
+  border-color: rgba(0, 210, 180, 0.55);
+}
+
+.farewell-check__item:has(.farewell-check__checkbox:checked) .farewell-check__text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.farewell-check__checkbox {
+  margin: 0;
+  margin-top: 0.15rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+  cursor: inherit;
+  flex-shrink: 0;
+}
+
+.farewell-check__text {
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.farewell__actions {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  margin-top: 2.5rem;
 }
 
 @keyframes danger-blink {
@@ -751,12 +868,22 @@ body {
     padding-block: 0.62rem;
     font-size: 0.9rem;
   }
+
+  .farewell__actions {
+    width: 100%;
+  }
+
+  .farewell__actions .btn,
+  .farewell__question-actions .btn {
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .progress__bar,
   .chip,
-  .settings-btn svg {
+  .settings-btn svg,
+  .farewell-check__label {
     transition: none !important;
   }
 
@@ -1089,7 +1216,8 @@ body {
 }
 
 /* Sprint Settings Section */
-.modal__body--sprint {
+.modal__body--sprint,
+.modal__body--weekdays {
   padding-top: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
