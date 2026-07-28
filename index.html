@@ -111,6 +111,17 @@
                 </div>
               </div>
             </div>
+            <div class="modal__body modal__body--weekdays">
+              <label class="field">
+                <span>Urlaubs-Frage anzeigen</span>
+                <select id="questionSchedule">
+                  <option value="tue_thu">Dienstag und Donnerstag</option>
+                  <option value="mon_wed_fri">Montag/Mittwoch/Freitag</option>
+                  <option value="daily">Täglich</option>
+                  <option value="never">Nie</option>
+                </select>
+              </label>
+            </div>
             <div class="modal__footer">
               <button id="settingsWheelButton" type="button" class="btn btn--ghost btn--small">
                 Moderator auslosen
@@ -216,12 +227,61 @@
           <p id="farewellMeta" class="eyebrow">Daily abgeschlossen</p>
           <h2>Danke für eure Zeit</h2>
           <p class="farewell__subtitle">Happy Hacking</p>
-          <button id="spinWheelButton" type="button" class="btn btn--accent">
-            Moderator auslosen
-          </button>
-          <button id="restartButton" type="button" class="btn btn--primary">
-            Neue Runde starten
-          </button>
+
+          <div id="farewellQuestion" class="farewell__question" role="group" aria-labelledby="farewellQuestionText">
+            <p id="farewellQuestionText" class="farewell__question-text">
+              Startet in den nächsten zwei Arbeitstagen jemand in einen Urlaub von mindestens fünf Tagen?
+            </p>
+            <div class="farewell__question-actions">
+              <button id="farewellNoButton" type="button" class="btn btn--ghost" aria-pressed="false">Nein</button>
+              <button id="farewellYesButton" type="button" class="btn btn--ghost" aria-pressed="false" aria-expanded="false" aria-controls="farewellChecklist">Ja</button>
+            </div>
+          </div>
+
+          <div id="farewellChecklist" class="farewell__checklist" hidden>
+            <p class="farewell__checklist-title">Für alle bevorstehenden Abwesenheiten kurz prüfen:</p>
+            <ul class="farewell-check">
+              <li class="farewell-check__item">
+                <label class="farewell-check__label">
+                  <input type="checkbox" class="farewell-check__checkbox" />
+                  <span class="farewell-check__text">Vertretung und Übergabe der offenen Themen geklärt</span>
+                </label>
+              </li>
+              <li class="farewell-check__item">
+                <label class="farewell-check__label">
+                  <input type="checkbox" class="farewell-check__checkbox" />
+                  <span class="farewell-check__text">Ticketstatus aktualisiert</span>
+                </label>
+              </li>
+              <li class="farewell-check__item">
+                <label class="farewell-check__label">
+                  <input type="checkbox" class="farewell-check__checkbox" />
+                  <span class="farewell-check__text">Offene Aufgaben und nächste Schritte dokumentiert</span>
+                </label>
+              </li>
+              <li class="farewell-check__item">
+                <label class="farewell-check__label">
+                  <input type="checkbox" class="farewell-check__checkbox" />
+                  <span class="farewell-check__text">Abwesenheit im Kalender beziehungsweise Abwesenheitssystem eingetragen</span>
+                </label>
+              </li>
+              <li class="farewell-check__item">
+                <label class="farewell-check__label">
+                  <input type="checkbox" class="farewell-check__checkbox" />
+                  <span class="farewell-check__text">Relevante Ansprechpartner über die Abwesenheit informiert</span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div id="farewellActions" class="farewell__actions" hidden>
+            <button id="spinWheelButton" type="button" class="btn btn--accent">
+              Moderator auslosen
+            </button>
+            <button id="restartButton" type="button" class="btn btn--primary">
+              Neue Runde starten
+            </button>
+          </div>
         </div>
       </section>
 

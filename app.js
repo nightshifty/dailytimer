@@ -1,6 +1,15 @@
 const DEFAULT_TOTAL_MINUTES = 15;
 const CREW_STORAGE_KEY = "dailyTimerCrew";
 const SPRINT_STORAGE_KEY = "dailyTimerSprint";
+const QUESTION_SCHEDULE_STORAGE_KEY = "dailyTimerQuestionSchedule";
+const DEFAULT_QUESTION_SCHEDULE = "tue_thu";
+// Presets für die Urlaubs-Frage -> Wochentage (getDay: So=0 … Sa=6)
+const QUESTION_SCHEDULES = {
+  tue_thu: [2, 4],          // Dienstag und Donnerstag
+  mon_wed_fri: [1, 3, 5],   // Montag/Mittwoch/Freitag
+  daily: [0, 1, 2, 3, 4, 5, 6], // Täglich
+  never: [],                // Nie
+};
 
 const ui = {
   sessionScreen: document.querySelector("#sessionScreen"),
@@ -49,6 +58,7 @@ const ui = {
   crewChips: document.querySelector("#crewChips"),
   crewEmptyHint: document.querySelector("#crewEmptyHint"),
   crewSetupLink: document.querySelector("#crewSetupLink"),
+  questionSchedule: document.querySelector("#questionSchedule"),
   mainEyebrow: document.querySelector("#mainEyebrow"),
   // Sprint elements
   sprintBanner: document.querySelector("#sprintBanner"),
@@ -72,6 +82,12 @@ const ui = {
   settingsWheelButton: document.querySelector("#settingsWheelButton"),
   wheelParticipants: document.querySelector("#wheelParticipants"),
   wheelParticipantsHint: document.querySelector("#wheelParticipantsHint"),
+  // Farewell vacation question elements
+  farewellQuestion: document.querySelector("#farewellQuestion"),
+  farewellNoButton: document.querySelector("#farewellNoButton"),
+  farewellYesButton: document.querySelector("#farewellYesButton"),
+  farewellChecklist: document.querySelector("#farewellChecklist"),
+  farewellActions: document.querySelector("#farewellActions"),
 };
 
 const state = {
@@ -88,6 +104,7 @@ const state = {
   // Crew management (persistent)
   crew: [],                   // All crew member names (saved in localStorage)
   presentMembers: new Set(),  // Names of crew members present today (reset on reload)
+  questionSchedule: DEFAULT_QUESTION_SCHEDULE, // Preset, an welchen Wochentagen die Urlaubs-Frage erscheint
   // Session participant management
   participants: [],           // All participant names for current session
   remainingParticipants: [],  // Names of people who haven't spoken yet
@@ -179,6 +196,26 @@ function loadCrew() {
     console.warn("Could not load crew from localStorage:", e);
   }
   return [];
+}
+
+function saveQuestionSchedule(schedule) {
+  try {
+    localStorage.setItem(QUESTION_SCHEDULE_STORAGE_KEY, schedule);
+  } catch (e) {
+    console.warn("Could not save question schedule to localStorage:", e);
+  }
+}
+
+function loadQuestionSchedule() {
+  try {
+    const saved = localStorage.getItem(QUESTION_SCHEDULE_STORAGE_KEY);
+    if (saved && Object.prototype.hasOwnProperty.call(QUESTION_SCHEDULES, saved)) {
+      return saved;
+    }
+  } catch (e) {
+    console.warn("Could not load question schedule from localStorage:", e);
+  }
+  return DEFAULT_QUESTION_SCHEDULE;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -605,6 +642,8 @@ function openSettingsModal() {
   modalCrew = [...state.crew];
   renderModalCrewList();
 
+  ui.questionSchedule.value = state.questionSchedule;
+
   const sprint = loadSprint();
   ui.sprintGoalInput.value = sprint?.goal || "";
   ui.sprintStartInput.value = sprint?.start || "";
@@ -633,6 +672,10 @@ function saveSettings() {
   } else {
     localStorage.removeItem(SPRINT_STORAGE_KEY);
   }
+
+  // Save question weekdays
+  state.questionSchedule = ui.questionSchedule.value;
+  saveQuestionSchedule(state.questionSchedule);
 
   // Reset present members to all crew (since crew changed)
   state.presentMembers = new Set(newCrew);
@@ -821,6 +864,7 @@ function finishLastSpeaker() {
   const label = mins === "1" ? "Minute" : "Minuten";
   ui.farewellMeta.textContent = `Daily abgeschlossen in ${mins} ${label}`;
   updateScreenVisibility();
+  resetFarewellQuestion();
   launchConfetti();
   updateRunningPanelsVisibility();
   updateHeaderFocusVisibility();
@@ -911,6 +955,7 @@ function resetSession() {
 
   ui.farewellMeta.textContent = "Daily abgeschlossen";
   updateScreenVisibility();
+  resetFarewellQuestion();
   updateRunningPanelsVisibility();
   updateHeaderFocusVisibility();
   updateInputsDisabled(false);
@@ -1171,6 +1216,47 @@ function closeWheelModal() {
   ui.wheelModal.hidden = true;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Farewell: Urlaubs-Frage + Übergabe-Checkliste
+// ─────────────────────────────────────────────────────────────
+
+function isQuestionDayToday() {
+  const days = QUESTION_SCHEDULES[state.questionSchedule] || [];
+  return days.includes(new Date().getDay());
+}
+
+function resetFarewellQuestion() {
+  const showQuestion = isQuestionDayToday();
+  ui.farewellNoButton.setAttribute("aria-pressed", "false");
+  ui.farewellYesButton.setAttribute("aria-pressed", "false");
+  ui.farewellYesButton.setAttribute("aria-expanded", "false");
+  ui.farewellChecklist.hidden = true;
+  ui.farewellQuestion.hidden = !showQuestion;
+  // Ist heute kein Frage-Tag, kommen die Buttons direkt (wie zuvor ohne Frage)
+  ui.farewellActions.hidden = showQuestion;
+  const boxes = ui.farewellChecklist.querySelectorAll(".farewell-check__checkbox");
+  for (const cb of boxes) {
+    cb.checked = false;
+  }
+}
+
+function selectFarewellNo() {
+  ui.farewellNoButton.setAttribute("aria-pressed", "true");
+  ui.farewellYesButton.setAttribute("aria-pressed", "false");
+  ui.farewellYesButton.setAttribute("aria-expanded", "false");
+  ui.farewellChecklist.hidden = true;
+  ui.farewellActions.hidden = false; // erst Buttons einblenden …
+  openWheelModal();                  // … dann Rad öffnen (bricht bei leerem Roster ab, Ausstieg bleibt erreichbar)
+}
+
+function selectFarewellYes() {
+  ui.farewellYesButton.setAttribute("aria-pressed", "true");
+  ui.farewellNoButton.setAttribute("aria-pressed", "false");
+  ui.farewellYesButton.setAttribute("aria-expanded", "true");
+  ui.farewellChecklist.hidden = false;
+  ui.farewellActions.hidden = false;
+}
+
 function setWheelCheckboxesDisabled(disabled) {
   const checkboxes = ui.wheelParticipants.querySelectorAll(".wheel-participants__checkbox");
   for (const cb of checkboxes) {
@@ -1248,6 +1334,7 @@ function init() {
   state.crew = crewFromUrl.length > 0 ? crewFromUrl : loadCrew();
   // Initially, all crew members are present
   state.presentMembers = new Set(state.crew);
+  state.questionSchedule = loadQuestionSchedule();
 
   // Event listeners for setup form
   ui.setupForm.addEventListener("submit", (event) => {
@@ -1289,6 +1376,8 @@ function init() {
     }
   });
   ui.restartButton.addEventListener("click", resetSession);
+  ui.farewellNoButton.addEventListener("click", selectFarewellNo);
+  ui.farewellYesButton.addEventListener("click", selectFarewellYes);
 
   // Settings modal event listeners
   ui.settingsButton.addEventListener("click", openSettingsModal);
